@@ -11,7 +11,7 @@
   "scripts": {
     "lint": "eslint '{src,test}/**/*.ts'",
     "build": "tsc --project tsconfig.build.json",
-    "test": "jest --config=./test/jest.config.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=./test/jest.config.js",
     "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest  --config ./test/jest.config.json"
   },
   "contributors": [
@@ -23,6 +23,7 @@
     "type": "git",
     "url": "git@github.com:AhmedKorim/we3-plugin-ipfs-registry.git"
   },
+
   "dependencies": {
     "@helia/dag-cbor": "^1.0.3",
     "abi-decoder": "^2.4.0",
