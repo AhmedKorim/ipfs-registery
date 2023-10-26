@@ -24,8 +24,10 @@ export const RegistryAbi = [
     type: "function",
   },
 ] as const;
+// The block number when this contract was uploaded
+export const DEPLOYED_AT = BigInt(4546394);
 
 /**
  * Base type of the of the registry contract
  * */
-export type RegistryAbiInterface = typeof ABI;
+export type RegistryAbiInterface = typeof RegistryAbi;

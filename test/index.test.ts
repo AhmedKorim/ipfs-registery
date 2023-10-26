@@ -6,6 +6,8 @@ describe("IpfsRegistry Tests", () => {
     const web3Context = new core.Web3Context("http://127.0.0.1:7545");
     web3Context.registerPlugin(new IpfsRegistry());
     expect(web3Context.ipfsRegistry).toBeDefined();
+    expect(web3Context.ipfsRegistry.uploadFileAndRegister).toBeDefined();
+    expect(web3Context.ipfsRegistry.getCIDsOfAddress).toBeDefined();
   });
 
   describe("IpfsRegistry method tests", () => {
@@ -14,18 +16,13 @@ describe("IpfsRegistry Tests", () => {
     let web3Context: Web3;
 
     beforeAll(() => {
-      web3Context = new Web3("http://127.0.0.1:8545");
+      web3Context = new Web3("http://127.0.0.1:7545");
       web3Context.registerPlugin(new IpfsRegistry());
       consoleSpy = jest.spyOn(global.console, "log").mockImplementation();
     });
 
     afterAll(() => {
       consoleSpy.mockRestore();
-    });
-
-    it("should call TempltyPlugin test method with expected param", () => {
-      web3Context.ipfsRegistry.test("test-param");
-      expect(consoleSpy).toHaveBeenCalledWith("test-param");
     });
   });
 });

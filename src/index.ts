@@ -1,20 +1,24 @@
 import crypto from "crypto";
-import { Contract, Web3PluginBase } from "web3";
-import { RegistryAbi, RegistryAbiInterface } from "./registry-abi";
+import { Contract, DEFAULT_RETURN_FORMAT, eth, Web3PluginBase } from "web3";
+import { DEPLOYED_AT, RegistryAbi, RegistryAbiInterface } from "./registry-abi";
 
 export class IpfsRegistry extends Web3PluginBase {
   public pluginNamespace = "ipfsRegistry";
   private readonly _registryContract: Contract<RegistryAbiInterface>;
+  private readonly _registryContractDeployedAt: bigint;
 
   constructor() {
     super();
+
+    this._registryContractDeployedAt = DEPLOYED_AT;
+
     // Instantiate the registry contract
-    this._registryContract = new Contract<RegistryAbi>(
+    this._registryContract = new Contract<RegistryAbiInterface>(
       RegistryAbi,
       "0xA683BF985BC560c5dc99e8F33f3340d1e53736EB",
     );
     // Linking web3 context the registry contract
-    this._registryContract.link(parentContext);
+    this._registryContract.link(this);
   }
 
   /**
@@ -22,7 +26,8 @@ export class IpfsRegistry extends Web3PluginBase {
    * @param{_fileData} - Represents the bytes for the file to upload
    * */
   private async uploadFileToIpfs(_fileData: Uint8Array): Promise<string> {
-    const cid = await new Promise((r) =>
+    // Random CID
+    const cid = await new Promise<string>((r) =>
       r(crypto.randomBytes(32).toString("hex")),
     );
     return cid;
@@ -42,8 +47,48 @@ export class IpfsRegistry extends Web3PluginBase {
     });
   }
 
-  public test(param: string): void {
-    console.log(param);
+  /**
+   * Fetch the added CID for an address
+   * It loads filtered list of events emitted by the contract in chunks
+   * Combine all chunks in one list
+   * */
+  public async getCIDsOfAddress(_address: string): Promise<string[]> {
+    // The full list of cids stored in the contract
+    const Cids: string[] = [];
+
+    // get the latest block from the chain
+    const lastBlockNumber = await eth.getBlockNumber(
+      this,
+      DEFAULT_RETURN_FORMAT,
+    );
+
+    for (
+      let currentBlock = this._registryContractDeployedAt;
+      currentBlock <= lastBlockNumber;
+      // 1024 as this is maximum entries per query
+      currentBlock += BigInt(1024)
+    ) {
+      const fetchedEvent = await this._registryContract.getPastEvents(
+        "CIDStored",
+        {
+          fromBlock: currentBlock,
+          toBlock: currentBlock + BigInt(1024),
+        },
+      );
+
+      Cids.push(
+        ...fetchedEvent
+          .filter((event) => typeof event != "string")
+          .map((event) => {
+            if (typeof event === "string") {
+              throw new Error("Filed to map events");
+            }
+            const cid = event.returnValues.cid as string;
+            return cid;
+          }),
+      );
+    }
+    return Cids;
   }
 }
 
