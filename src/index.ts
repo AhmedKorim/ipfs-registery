@@ -18,7 +18,7 @@ export class IpfsRegistry extends Web3PluginBase {
   private readonly _registryContract: Contract<RegistryAbiInterface>;
   private readonly _registryContractDeployedAt: bigint;
 
-  constructor(config: IpfsRegistryConfig) {
+  constructor(config: IpfsRegistryConfig = {}) {
     super();
 
     this._registryContractDeployedAt =
