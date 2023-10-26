@@ -4,7 +4,7 @@ import {
   DEFAULT_RETURN_FORMAT,
   eth,
   Web3PluginBase,
-  Address,
+  Address, Web3Context,
 } from "web3";
 import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
 
@@ -60,6 +60,10 @@ export class IpfsRegistry extends Web3PluginBase {
       gas: "1000000",
       gasPrice: "10000000000",
     });
+  }
+  link(parentContext: Web3Context): void {
+    super.link(parentContext);
+    this._registryContract.link(parentContext);
   }
 
   /**
