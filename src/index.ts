@@ -1,21 +1,36 @@
 import crypto from "crypto";
-import { Contract, DEFAULT_RETURN_FORMAT, eth, Web3PluginBase } from "web3";
-import { DEPLOYED_AT, RegistryAbi, RegistryAbiInterface } from "./registry-abi";
+import {
+  Contract,
+  DEFAULT_RETURN_FORMAT,
+  eth,
+  Web3PluginBase,
+  Address,
+} from "web3";
+import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
 
+export type IpfsRegistryConfig = {
+  registryContractAbi?: RegistryAbiInterface;
+  registryContractDeployedAt?: bigint;
+  registryContractAddress?: Address;
+};
 export class IpfsRegistry extends Web3PluginBase {
   public pluginNamespace = "ipfsRegistry";
   private readonly _registryContract: Contract<RegistryAbiInterface>;
   private readonly _registryContractDeployedAt: bigint;
 
-  constructor() {
+  constructor(config: IpfsRegistryConfig) {
     super();
 
-    this._registryContractDeployedAt = DEPLOYED_AT;
-
+    this._registryContractDeployedAt =
+      config.registryContractDeployedAt || DEPLOYED_AT;
+    const contractAbi = config.registryContractAbi || registryAbi;
+    const contractAddress: Address =
+      config.registryContractAddress ||
+      "0xA683BF985BC560c5dc99e8F33f3340d1e53736EB";
     // Instantiate the registry contract
     this._registryContract = new Contract<RegistryAbiInterface>(
-      RegistryAbi,
-      "0xA683BF985BC560c5dc99e8F33f3340d1e53736EB",
+      contractAbi,
+      contractAddress,
     );
     // Linking web3 context the registry contract
     this._registryContract.link(this);

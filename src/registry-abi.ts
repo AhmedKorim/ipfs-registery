@@ -1,7 +1,7 @@
 /**
  * Abi for the registry contract
  * */
-export const RegistryAbi = [
+export const registryAbi = [
   {
     anonymous: false,
     inputs: [
@@ -30,4 +30,4 @@ export const DEPLOYED_AT = BigInt(4546394);
 /**
  * Base type of the of the registry contract
  * */
-export type RegistryAbiInterface = typeof RegistryAbi;
+export type RegistryAbiInterface = typeof registryAbi;
