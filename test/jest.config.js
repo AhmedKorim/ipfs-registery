@@ -1,4 +1,3 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   moduleFileExtensions: ["js", "json", "ts"],
   rootDir: ".",
@@ -17,4 +16,3 @@ module.exports = {
     "^(\\.{1,2}/.*)\\.[jt]s$": "$1",
   },
 };
-

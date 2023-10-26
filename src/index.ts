@@ -4,14 +4,15 @@ import {
   DEFAULT_RETURN_FORMAT,
   eth,
   PayableCallOptions,
-  // TransactionReceipt,
+  TransactionReceipt,
   Web3Context,
   Web3PluginBase,
   validator,
-  TransactionReceipt,
 } from "web3";
 
 import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
+import { dagCbor } from "@helia/dag-cbor";
+import { Helia } from "helia";
 
 export type IpfsRegistryConfig = {
   // The abi for the registry contract
@@ -20,6 +21,8 @@ export type IpfsRegistryConfig = {
   registryContractDeployedAt?: bigint;
   // Registry contract address
   registryContractAddress?: Address;
+  // Helia IPFS node
+  heliaNode: Helia;
 };
 
 export type IpfsRegistryResponse = {
@@ -32,6 +35,8 @@ export class IpfsRegistry extends Web3PluginBase {
   private readonly _registryContract: Contract<RegistryAbiInterface>;
   private readonly _registryContractDeployedAt: bigint;
 
+  private readonly _helia: Helia;
+
   constructor(config: IpfsRegistryConfig) {
     super();
 
@@ -43,14 +48,18 @@ export class IpfsRegistry extends Web3PluginBase {
     this._registryContract = new Contract<RegistryAbiInterface>(contractAbi, contractAddress);
     // Linking web3 context the registry contract
     this._registryContract.link(this);
+
+    this._helia = config.heliaNode;
   }
 
   /**
    * Upload a blob to ipfs and return the CID for it
    * @param fileData - Represents the bytes for the file to upload
    * */
-  public async uploadFileToIpfs(_fileData: Uint8Array): Promise<string> {
-    return Promise.resolve("QmQGQU13hzouofHiMbXSstFJJxAkr6kgfahaxBtZFG8PEn");
+  public async uploadFileToIpfs(fileData: Uint8Array): Promise<string> {
+    const dag = dagCbor(this._helia);
+    const cid = await dag.add(fileData);
+    return cid.toString();
   }
 
   /**
@@ -94,13 +103,16 @@ export class IpfsRegistry extends Web3PluginBase {
       // 1024 as this is maximum entries per query
       currentBlock += BigInt(1024)
     ) {
-      const fetchedEvents = await this._registryContract.getPastEvents("CIDStored", {
-        fromBlock: currentBlock,
-        toBlock: currentBlock + BigInt(1024),
-        filter: {
-          owner: address.toLocaleLowerCase(),
-        },
-      });
+      const fetchedEvents = await this._registryContract.getPastEvents(
+        "CIDStored",
+        {
+          fromBlock: currentBlock,
+          toBlock: currentBlock + BigInt(1024),
+          filter: {
+            owner: address.toLocaleLowerCase(),
+          },
+        }
+      );
       // Looping over the events as the event parameter `cid` entry is an index parameter not the
       // actual CID value submitted to the store call
 
@@ -109,14 +121,18 @@ export class IpfsRegistry extends Web3PluginBase {
           continue;
         }
         const transactionHash = event.transactionHash;
-        const transaction = await eth.getTransaction(this, transactionHash, DEFAULT_RETURN_FORMAT);
+        const transaction = await eth.getTransaction(
+          this,
+          transactionHash,
+          DEFAULT_RETURN_FORMAT
+        );
         if (!transaction) {
           continue;
         }
         // Decoding the transaction parameters from the input
         const txInput = eth.abi.decodeParameters(
           [{ internalType: "string", name: "cid", type: "string" }],
-          transaction.input.slice(10),
+          transaction.input.slice(10)
         );
         const cid = txInput.cid as string;
         cids.push(cid);
