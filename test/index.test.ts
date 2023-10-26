@@ -3,7 +3,7 @@ import { IpfsRegistry, IpfsRegistryConfig } from "../src";
 
 const GANACHE_CONFIG: IpfsRegistryConfig = {
   registryContractDeployedAt: BigInt(1),
-  registryContractAddress: "0xF1940dA7d5a679F3aB2204572D13DaF1fA0FA7ad",
+  registryContractAddress: "0xAF83b94D6771a6F9465eBA4F188c239829c60a8c",
 };
 describe("IpfsRegistry Tests", () => {
   it("should register TokensPlugin plugin on Web3Context instance", () => {
@@ -45,14 +45,11 @@ describe("IpfsRegistry Tests", () => {
       const maybeSentCid = cids.findIndex(
         (cid) => cid === registryResponse.uploadedCID,
       );
-      console.debug(
-        `list of cids ,${JSON.stringify(cids, null, 2)} /n uploaded cid ${
-          registryResponse.uploadedCID
-        }`,
-      );
+
       expect(maybeSentCid).toBeGreaterThan(-1);
     });
-    it.only("Fetch cids form chain", async () => {
+
+    it("Fetch cids form chain", async () => {
       const cids =
         await web3Context.ipfsRegistry.getCIDsOfAddress("test-param");
       console.debug(cids);
