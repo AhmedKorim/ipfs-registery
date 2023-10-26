@@ -26,7 +26,8 @@
   "dependencies": {
     "@helia/dag-cbor": "^1.0.3",
     "abi-decoder": "^2.4.0",
-    "helia": "^2.0.3"
+    "helia": "^2.0.3",
+    "web3-validator": "^2.0.3"
   },
   "devDependencies": {
     "@chainsafe/eslint-config": "^2.0.0",
