@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import {
   Address,
   Contract,
@@ -9,12 +8,16 @@ import {
   Web3Context,
   Web3PluginBase,
 } from "web3";
+import { Helia } from "helia";
+import { dagCbor } from "@helia/dag-cbor";
 import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
 
 export type IpfsRegistryConfig = {
   registryContractAbi?: RegistryAbiInterface;
   registryContractDeployedAt?: bigint;
   registryContractAddress?: Address;
+  // Helia node for cleanup
+  heliaNode: Helia;
 };
 
 export type IpfsRegistryResponse = {
@@ -26,8 +29,8 @@ export class IpfsRegistry extends Web3PluginBase {
   public pluginNamespace = "ipfsRegistry";
   private readonly _registryContract: Contract<RegistryAbiInterface>;
   private readonly _registryContractDeployedAt: bigint;
-
-  constructor(config: IpfsRegistryConfig = {}) {
+  private readonly _helia: Helia;
+  constructor(config: IpfsRegistryConfig) {
     super();
 
     this._registryContractDeployedAt =
@@ -36,25 +39,26 @@ export class IpfsRegistry extends Web3PluginBase {
     const contractAddress: Address =
       config.registryContractAddress ||
       "0xA683BF985BC560c5dc99e8F33f3340d1e53736EB";
+
     // Instantiate the registry contract
     this._registryContract = new Contract<RegistryAbiInterface>(
       contractAbi,
-      contractAddress,
+      contractAddress
     );
     // Linking web3 context the registry contract
     this._registryContract.link(this);
+
+    this._helia = config.heliaNode;
   }
 
   /**
    * Upload a blob to ipfs and return the CID for it
-   * @param{_fileData} - Represents the bytes for the file to upload
+   * @param{fileData} - Represents the bytes for the file to upload
    * */
-  private async uploadFileToIpfs(_fileData: Uint8Array): Promise<string> {
-    // Random CID
-    const cid = await new Promise<string>((r) =>
-      r(crypto.randomBytes(32).toString("hex")),
-    );
-    return cid;
+  private async uploadFileToIpfs(fileData: Uint8Array): Promise<string> {
+    const dag = dagCbor(this._helia);
+    const cid = await dag.add(fileData);
+    return cid.toString();
   }
 
   /**
@@ -63,7 +67,7 @@ export class IpfsRegistry extends Web3PluginBase {
    * */
   public async uploadFileAndRegister(
     fileData: Uint8Array,
-    txOptions: PayableCallOptions,
+    txOptions: PayableCallOptions
   ): Promise<IpfsRegistryResponse> {
     // Upload the file to IPFS
     const fileCid = await this.uploadFileToIpfs(fileData);
@@ -89,12 +93,12 @@ export class IpfsRegistry extends Web3PluginBase {
    * */
   public async getCIDsOfAddress(_address: string): Promise<string[]> {
     // The full list of cids stored in the contract
-    const Cids: string[] = [];
+    const cids: string[] = [];
 
     // get the latest block from the chain
     const lastBlockNumber = await eth.getBlockNumber(
       this,
-      DEFAULT_RETURN_FORMAT,
+      DEFAULT_RETURN_FORMAT
     );
 
     for (
@@ -108,8 +112,11 @@ export class IpfsRegistry extends Web3PluginBase {
         {
           fromBlock: currentBlock,
           toBlock: currentBlock + BigInt(1024),
-        },
+        }
       );
+      // Looping over the events as the event parameter `cid` entry is an index parameter not the
+      // actual CID value submitted to the store call
+
       for (const event of fetchedEvents) {
         if (typeof event === "string" || event.transactionHash === undefined) {
           continue;
@@ -118,20 +125,21 @@ export class IpfsRegistry extends Web3PluginBase {
         const transaction = await eth.getTransaction(
           this,
           transactionHash,
-          DEFAULT_RETURN_FORMAT,
+          DEFAULT_RETURN_FORMAT
         );
         if (!transaction) {
           continue;
         }
+        // Decoding the transaction parameters from the input
         const txInput = eth.abi.decodeParameters(
           [{ internalType: "string", name: "cid", type: "string" }],
-          transaction.input.slice(10),
+          transaction.input.slice(10)
         );
         const cid = txInput.cid as string;
-        Cids.push(cid);
+        cids.push(cid);
       }
     }
-    return Cids;
+    return cids;
   }
 }
 
