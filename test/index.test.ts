@@ -42,7 +42,6 @@ describe("IpfsRegistry Tests", () => {
       const fileData = Uint8Array.from([1, 1, 1, 1]);
       const accounts = await web3Context.eth.getAccounts();
       const defaultAccount = accounts[0];
-      console.debug(defaultAccount);
       const registryResponse =
         await web3Context.ipfsRegistry.uploadFileAndRegister(fileData, {
           from: defaultAccount,
@@ -51,7 +50,7 @@ describe("IpfsRegistry Tests", () => {
         });
       // ensure the CID is inserted
       const cids = await web3Context.ipfsRegistry.getCIDsOfAddress(
-        "test-param"
+        defaultAccount
       );
       const maybeSentCid = cids.findIndex(
         (cid) => cid === registryResponse.uploadedCID
@@ -73,7 +72,7 @@ describe("IpfsRegistry Tests", () => {
           "0x302932C3b8ee6f88cfd35b867C3d6AfCada5d548"
         );
       };
-      expect(getCids).toThrow("Invalid address");
+      await expect(getCids()).rejects.toThrow("Invalid address");
     });
   });
 });

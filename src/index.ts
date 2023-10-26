@@ -79,6 +79,7 @@ export class IpfsRegistry extends Web3PluginBase {
   }
 
   /**
+   *
    * Fetch the added CID for an address
    * It loads filtered list of events emitted by the contract in chunks
    * Combine all chunks in one list
