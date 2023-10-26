@@ -1,12 +1,12 @@
 {
-  "name": "web3-plugin-template",
+  "name": "web3-plugin-ipfs-registry",
   "version": "1.0.0",
-  "description": "Template plugin to extend web3.js with additional methods",
+  "description": "A plugin for web3.js for uploading file to IPFS and keep them tracked on-chain",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "homepage": "https://github.com/web3/web3.js-plugin-template#readme",
+  "homepage": "https://github.com/AhmedKorim/we3-plugin-ipfs-registry#readme",
   "bugs": {
-    "url": "https://github.com/web3/web3.js-plugin-template/issues"
+    "url": "https://github.com/AhmedKorim/we3-plugin-ipfs-registry/issues"
   },
   "scripts": {
     "lint": "eslint '{src,test}/**/*.ts'",
@@ -14,12 +14,13 @@
     "test": "jest --config=./test/jest.config.js"
   },
   "contributors": [
-    "ChainSafe <info@chainsafe.io>"
+    "ChainSafe <info@chainsafe.io>",
+    "Ahmed korim <ahmedkorrim@gmail.com>"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:web3/web3.js-plugin-template.git"
+    "url": "git@github.com:AhmedKorim/we3-plugin-ipfs-registry.git"
   },
   "dependencies": {
   },

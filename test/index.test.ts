@@ -1,21 +1,21 @@
 import Web3, { core } from "web3";
-import { TemplatePlugin } from "../src";
+import { IpfsRegistry } from "../src";
 
-describe("TemplatePlugin Tests", () => {
+describe("IpfsRegistry Tests", () => {
   it("should register TokensPlugin plugin on Web3Context instance", () => {
-    const web3Context = new core.Web3Context("http://127.0.0.1:8545");
-    web3Context.registerPlugin(new TemplatePlugin());
-    expect(web3Context.template).toBeDefined();
+    const web3Context = new core.Web3Context("http://127.0.0.1:7545");
+    web3Context.registerPlugin(new IpfsRegistry());
+    expect(web3Context.ipfsRegistry).toBeDefined();
   });
 
-  describe("TemplatePlugin method tests", () => {
+  describe("IpfsRegistry method tests", () => {
     let consoleSpy: jest.SpiedFunction<typeof global.console.log>;
 
     let web3Context: Web3;
 
     beforeAll(() => {
       web3Context = new Web3("http://127.0.0.1:8545");
-      web3Context.registerPlugin(new TemplatePlugin());
+      web3Context.registerPlugin(new IpfsRegistry());
       consoleSpy = jest.spyOn(global.console, "log").mockImplementation();
     });
 
@@ -24,7 +24,7 @@ describe("TemplatePlugin Tests", () => {
     });
 
     it("should call TempltyPlugin test method with expected param", () => {
-      web3Context.template.test("test-param");
+      web3Context.ipfsRegistry.test("test-param");
       expect(consoleSpy).toHaveBeenCalledWith("test-param");
     });
   });
