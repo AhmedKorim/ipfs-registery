@@ -1,4 +1,7 @@
-export const ABI = [
+/**
+ * Abi for the registry contract
+ * */
+export const RegistryAbi = [
   {
     anonymous: false,
     inputs: [
@@ -21,4 +24,8 @@ export const ABI = [
     type: "function",
   },
 ] as const;
-export type RegistryAbi = typeof ABI;
+
+/**
+ * Base type of the of the registry contract
+ * */
+export type RegistryAbiInterface = typeof ABI;
