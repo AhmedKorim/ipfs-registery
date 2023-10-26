@@ -8,10 +8,11 @@ import {
   Web3Context,
   Web3PluginBase,
   validator,
+  TransactionReceipt,
 } from "web3";
-import { Helia } from "helia";
-import { dagCbor } from "@helia/dag-cbor";
 
+import { dagCbor } from "@helia/dag-cbor";
+import { Helia } from "helia";
 import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
 
 export type IpfsRegistryConfig = {
@@ -72,17 +73,15 @@ export class IpfsRegistry extends Web3PluginBase {
    * @param fileData - Represents the bytes for the file to upload
    * @param txOptions - Payable options that's used for configuring the transaction
    * */
-  public async uploadFileAndRegister(
+  public async registerCid(
     fileCid: string,
     txOptions: PayableCallOptions
   ): Promise<IpfsRegistryResponse> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  /*  const _txReceipt: TransactionReceipt =*/
-    await this._registryContract.methods
+    const txReceipt: TransactionReceipt = await this._registryContract.methods
       .store(fileCid)
       .send(txOptions);
     return {
-      transactionHash: "txReceipt.transactionHash.toString()",
+      transactionHash: txReceipt.transactionHash.toString(),
       uploadedCID: fileCid,
     };
   }
