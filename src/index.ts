@@ -1,10 +1,13 @@
 import crypto from "crypto";
 import {
+  Address,
   Contract,
   DEFAULT_RETURN_FORMAT,
   eth,
+  PayableCallOptions,
+  TransactionReceipt,
+  Web3Context,
   Web3PluginBase,
-  Address, Web3Context,
 } from "web3";
 import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
 
@@ -13,6 +16,12 @@ export type IpfsRegistryConfig = {
   registryContractDeployedAt?: bigint;
   registryContractAddress?: Address;
 };
+
+export type IpfsRegistryResponse = {
+  transactionHash: string;
+  uploadedCID: string;
+};
+
 export class IpfsRegistry extends Web3PluginBase {
   public pluginNamespace = "ipfsRegistry";
   private readonly _registryContract: Contract<RegistryAbiInterface>;
@@ -52,15 +61,22 @@ export class IpfsRegistry extends Web3PluginBase {
    * Upload file to ipfs and submit the CID to the registry contract
    *
    * */
-  public async uploadFileAndRegister(fileData: Uint8Array): Promise<void> {
+  public async uploadFileAndRegister(
+    fileData: Uint8Array,
+    txOptions: PayableCallOptions,
+  ): Promise<IpfsRegistryResponse> {
     // Upload the file to IPFS
     const fileCid = await this.uploadFileToIpfs(fileData);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    await this._registryContract.methods.store(fileCid).send({
-      gas: "1000000",
-      gasPrice: "10000000000",
-    });
+    const txReceipt: TransactionReceipt = await this._registryContract.methods
+      .store(fileCid)
+      .send(txOptions);
+    return {
+      transactionHash: txReceipt.transactionHash.toString(),
+      uploadedCID: fileCid,
+    };
   }
+
   link(parentContext: Web3Context): void {
     super.link(parentContext);
     this._registryContract.link(parentContext);
@@ -87,25 +103,33 @@ export class IpfsRegistry extends Web3PluginBase {
       // 1024 as this is maximum entries per query
       currentBlock += BigInt(1024)
     ) {
-      const fetchedEvent = await this._registryContract.getPastEvents(
+      const fetchedEvents = await this._registryContract.getPastEvents(
         "CIDStored",
         {
           fromBlock: currentBlock,
           toBlock: currentBlock + BigInt(1024),
         },
       );
-
-      Cids.push(
-        ...fetchedEvent
-          .filter((event) => typeof event != "string")
-          .map((event) => {
-            if (typeof event === "string") {
-              throw new Error("Filed to map events");
-            }
-            const cid = event.returnValues.cid as string;
-            return cid;
-          }),
-      );
+      for (const event of fetchedEvents) {
+        if (typeof event === "string" || event.transactionHash === undefined) {
+          continue;
+        }
+        const transactionHash = event.transactionHash;
+        const transaction = await eth.getTransaction(
+          this,
+          transactionHash,
+          DEFAULT_RETURN_FORMAT,
+        );
+        if (!transaction) {
+          continue;
+        }
+        const txInput = eth.abi.decodeParameters(
+          [{ internalType: "string", name: "cid", type: "string" }],
+          transaction.input.slice(10),
+        );
+        const cid = txInput.cid as string;
+        Cids.push(cid);
+      }
     }
     return Cids;
   }
