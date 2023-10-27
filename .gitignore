@@ -2,3 +2,5 @@ node_modules
 lib
 .idea/
 yarn-error.log
+.env
+cypress.env.json
