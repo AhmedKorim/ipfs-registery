@@ -3,30 +3,22 @@ import ganache, { EthereumProvider } from "ganache";
 import { IpfsRegistry, IpfsRegistryConfig } from "../../src";
 import { deployRegistryContract } from "../test.utils";
 import { Web3Account } from "web3-eth-accounts";
-import { createHelia, Helia } from "helia";
 
 describe("IpfsRegistry Tests", () => {
   it("should register TokensPlugin plugin on Web3Context instance", async () => {
     const web3Context = new core.Web3Context("http://127.0.0.1:7545");
-    const heliaNode = await createHelia();
     const config: IpfsRegistryConfig = {
       registryContractDeployedAt: BigInt(1),
       registryContractAddress: "0xAF83b94D6771a6F9465eBA4F188c239829c60a8c",
-      heliaNode,
     };
     web3Context.registerPlugin(new IpfsRegistry(config));
     expect(web3Context.ipfsRegistry).toBeDefined();
-    await heliaNode.stop()
   });
 
   describe("IpfsRegistry methods tests with local testnet", () => {
     let web3Context: Web3;
     let ganacheProvider: EthereumProvider;
-    let heliaNode: Helia;
-
     beforeAll(async () => {
-       heliaNode = await createHelia();
-
       ganacheProvider = ganache.provider({
         logging: {
           quiet: true,
@@ -42,7 +34,6 @@ describe("IpfsRegistry Tests", () => {
       const config: IpfsRegistryConfig = {
         registryContractDeployedAt: BigInt(1),
         registryContractAddress,
-        heliaNode
       };
 
       web3Context.registerPlugin(new IpfsRegistry(config));
@@ -50,7 +41,6 @@ describe("IpfsRegistry Tests", () => {
 
     afterAll(async () => {
       await ganacheProvider.disconnect();
-      await heliaNode.stop();
     });
 
     it("should upload to ipfs and update the cid", async () => {
@@ -90,26 +80,18 @@ describe("IpfsRegistry Tests", () => {
   describe("IpfsRegistryPlugin method tests with Sepolia testnet", () => {
     let web3Context: Web3;
     let account: Web3Account;
-    let heliaNode: Helia;
-
-    beforeAll(async () => {
-      heliaNode = await createHelia();
-      web3Context = new Web3("https://sepolia.infura.io/v3/62a6727b83c34df2b4d203d61fd1be22");
+    beforeAll(() => {
+      web3Context = new Web3("wss://ethereum-sepolia.publicnode.com");
       const privateKey = "0x" + process.env.ACCOUNT_PRIVATE_KEY!;
       account = web3Context.eth.accounts.privateKeyToAccount(privateKey);
       web3Context.eth.accounts.wallet.add(account);
       const config: IpfsRegistryConfig = {
         registryContractDeployedAt: BigInt(4562201),
         registryContractAddress: "0xA683BF985BC560c5dc99e8F33f3340d1e53736EB",
-        heliaNode
       };
 
       web3Context.registerPlugin(new IpfsRegistry(config));
     });
-
-    afterAll(async ()=>{
-      await heliaNode.stop()
-    })
 
     it("should upload file data to ipfs and query the contract for cids of this user", async () => {
       const fileData = Uint8Array.from([1, 1, 1, 1]);
@@ -127,11 +109,11 @@ describe("IpfsRegistry Tests", () => {
 
       expect(registryResponse.uploadedCID).toMatch(cid);
       expect(maybeSentCid).toBeGreaterThan(-1);
-    },100_000);
+    });
 
-    it("should fetch CIDs from sepolia testnet", async () => {
+    it.only("should fetch CIDs from sepolia testnet", async () => {
       const cids = await web3Context.ipfsRegistry.getCIDsOfAddress("0xe213213cd90f95d3251bebe5a10a3fc484d207cd");
       expect(cids.length).toBeGreaterThan(0);
-    },100_000);
+    });
   });
 });

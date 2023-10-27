@@ -1,4 +1,4 @@
-Web3 IPFS Registry Plugin
+web3-plugin-template
 ===========
 
 Contributing
