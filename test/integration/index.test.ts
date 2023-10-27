@@ -81,7 +81,7 @@ describe("IpfsRegistry Tests", () => {
     let web3Context: Web3;
     let account: Web3Account;
     beforeAll(() => {
-      web3Context = new Web3("wss://ethereum-sepolia.publicnode.com");
+      web3Context = new Web3("https://sepolia.infura.io/v3/62a6727b83c34df2b4d203d61fd1be22");
       const privateKey = "0x" + process.env.ACCOUNT_PRIVATE_KEY!;
       account = web3Context.eth.accounts.privateKeyToAccount(privateKey);
       web3Context.eth.accounts.wallet.add(account);
@@ -109,11 +109,11 @@ describe("IpfsRegistry Tests", () => {
 
       expect(registryResponse.uploadedCID).toMatch(cid);
       expect(maybeSentCid).toBeGreaterThan(-1);
-    });
+    },100_000);
 
-    it.only("should fetch CIDs from sepolia testnet", async () => {
+    it("should fetch CIDs from sepolia testnet", async () => {
       const cids = await web3Context.ipfsRegistry.getCIDsOfAddress("0xe213213cd90f95d3251bebe5a10a3fc484d207cd");
       expect(cids.length).toBeGreaterThan(0);
-    });
+    },100_000);
   });
 });

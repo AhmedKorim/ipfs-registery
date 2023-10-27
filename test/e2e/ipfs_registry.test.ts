@@ -19,7 +19,7 @@ describe("IpfsRegistry Tests", () => {
     let web3Context: Web3;
     let account: Web3Account;
     beforeAll(() => {
-      web3Context = new Web3("https://ethereum-sepolia.blockpi.network/v1/rpc/public");
+      web3Context = new Web3("https://sepolia.infura.io/v3/62a6727b83c34df2b4d203d61fd1be22");
       // @ts-ignore
       const privateKey = "0x" + Cypress.env("ACCOUNT_PRIVATE_KEY");
       account = web3Context.eth.accounts.privateKeyToAccount(privateKey);
@@ -31,6 +31,7 @@ describe("IpfsRegistry Tests", () => {
 
       web3Context.registerPlugin(new IpfsRegistry(config));
     });
+
 
     it("should upload file data to ipfs and query the contract for cids of this user", async () => {
       const fileData = Uint8Array.from([1, 1, 1, 1]);
@@ -51,8 +52,9 @@ describe("IpfsRegistry Tests", () => {
       expect(maybeSentCid).toBeGreaterThan(-1);
     });
 
-    it("should fetch CIDs from sepolia testnet", async () => {
-      await web3Context.ipfsRegistry.getCIDsOfAddress("0xe213213cd90f95d3251bebe5a10a3fc484d207cd");
-    }, 10_000);
+    it("should fetch CIDs from sepolia testnet" ,async () => {
+      const cid = await web3Context.ipfsRegistry.getCIDsOfAddress("0xe213213cd90f95d3251bebe5a10a3fc484d207cd");
+      expect(cid).toBeDefined()
+    });
   });
 });

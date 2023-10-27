@@ -27,10 +27,12 @@ global.afterAll = global.after;
 global.jest = {
   fn: global.cy.stub,
   spyOn: global.cy.spy,
+
 };
 
 global.it = it;
 global.test = it;
+
 global.it.each = data => (describe, test) => {
   const prs = [];
   for (const d of data) {
