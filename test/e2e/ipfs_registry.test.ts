@@ -21,11 +21,15 @@ describe("IpfsRegistry Tests", () => {
     let account: Web3Account;
 
     beforeAll(() => {
-      web3Context = new Web3("https://ethereum-sepolia.blockpi.network/v1/rpc/public");
       // Cypress type are clashing with Jest types
       // @ts-ignore
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
       const privateKey = `0x${Cypress.env("ACCOUNT_PRIVATE_KEY") as string}`;
+      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+      const rpc = `0x${Cypress.env("SEPOLIA_RPC") as string}`;
+
+      web3Context = new Web3(rpc);
       account = web3Context.eth.accounts.privateKeyToAccount(privateKey);
       web3Context.eth.accounts.wallet.add(account);
       const config: IpfsRegistryConfig = {

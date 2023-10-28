@@ -103,7 +103,7 @@ export class IpfsRegistry extends Web3PluginBase {
         fromBlock: currentBlock,
         toBlock: currentBlock + BigInt(1024),
         filter: {
-          owner: address.toLocaleLowerCase(),
+          owner: address,
         },
       });
 
