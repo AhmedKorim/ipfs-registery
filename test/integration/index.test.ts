@@ -1,11 +1,11 @@
 import Web3, { core } from "web3";
 import ganache, { EthereumProvider } from "ganache";
+import { Web3Account } from "web3-eth-accounts";
 import { IpfsRegistry, IpfsRegistryConfig } from "../../src";
 import { deployRegistryContract } from "../test.utils";
-import { Web3Account } from "web3-eth-accounts";
 
 describe("IpfsRegistry Tests", () => {
-  it("should register TokensPlugin plugin on Web3Context instance", async () => {
+  it("should register TokensPlugin plugin on Web3Context instance", () => {
     const web3Context = new core.Web3Context("http://127.0.0.1:7545");
     const config: IpfsRegistryConfig = {
       registryContractDeployedAt: BigInt(1),
@@ -79,7 +79,7 @@ describe("IpfsRegistry Tests", () => {
     let web3Context: Web3;
     let account: Web3Account;
 
-    beforeAll(async() => {
+    beforeAll(() => {
       web3Context = new Web3("https://sepolia.infura.io/v3/62a6727b83c34df2b4d203d61fd1be22");
       const privateKey = "0x" + process.env.ACCOUNT_PRIVATE_KEY!;
       account = web3Context.eth.accounts.privateKeyToAccount(privateKey);
@@ -91,7 +91,6 @@ describe("IpfsRegistry Tests", () => {
 
       web3Context.registerPlugin(new IpfsRegistry(config));
     });
-
 
     it("should upload file data to ipfs and query the contract for cids of this user", async () => {
       const fileData = Uint8Array.from([1, 1, 1, 1]);
@@ -107,11 +106,11 @@ describe("IpfsRegistry Tests", () => {
       const maybeSentCid = cids.findIndex((cid) => cid === registryResponse.uploadedCID);
 
       expect(maybeSentCid).toBeGreaterThan(-1);
-    },60000);
+    }, 60000);
 
     it("should fetch CIDs from sepolia testnet", async () => {
       const cids = await web3Context.ipfsRegistry.getCIDsOfAddress("0xe213213cd90f95d3251bebe5a10a3fc484d207cd");
       expect(cids.length).toBeGreaterThan(0);
-    },30000);
+    }, 30000);
   });
 });

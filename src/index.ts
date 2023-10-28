@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import {
   Address,
   Contract,
@@ -10,9 +11,8 @@ import {
   validator,
 } from "web3";
 
+import { EventLog } from "web3-eth-contract";
 import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
-import crypto from 'crypto';
-import { EventLog } from "web3-eth-contract/lib/commonjs/types";
 
 export type IpfsRegistryConfig = {
   // The abi for the registry contract
@@ -33,7 +33,6 @@ export class IpfsRegistry extends Web3PluginBase {
   private readonly _registryContract: Contract<RegistryAbiInterface>;
   private readonly _registryContractDeployedAt: bigint;
 
-
   constructor(config: IpfsRegistryConfig) {
     super();
 
@@ -45,15 +44,15 @@ export class IpfsRegistry extends Web3PluginBase {
     this._registryContract = new Contract<RegistryAbiInterface>(contractAbi, contractAddress);
     // Linking web3 context the registry contract
     this._registryContract.link(this);
-
   }
 
   /**
    * Upload a blob to ipfs and return the CID for it
    * @param _fileData - Represents the bytes for the file to upload
    * */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async uploadFileToIpfs(_fileData: Uint8Array): Promise<string> {
-    const cid   = crypto.randomBytes(33).toString()
+    const cid = crypto.randomBytes(33).toString();
     return Promise.resolve(cid);
   }
 
@@ -89,7 +88,7 @@ export class IpfsRegistry extends Web3PluginBase {
     }
     // The full list of cids stored in the contract
     const cids: string[] = [];
-    const events : EventLog[] = []
+    const events: EventLog[] = [];
 
     // get the latest block from the chain
     const lastBlockNumber = await eth.getBlockNumber(this, DEFAULT_RETURN_FORMAT);
@@ -100,18 +99,15 @@ export class IpfsRegistry extends Web3PluginBase {
       // 1024 as this is maximum entries per query
       currentBlock += BigInt(1024)
     ) {
-      const fetchedEvents = await this._registryContract.getPastEvents(
-        "CIDStored",
-        {
-          fromBlock: currentBlock,
-          toBlock: currentBlock + BigInt(1024),
-          filter: {
-            owner: address.toLocaleLowerCase(),
-          },
-        }
-      );
+      const fetchedEvents = await this._registryContract.getPastEvents("CIDStored", {
+        fromBlock: currentBlock,
+        toBlock: currentBlock + BigInt(1024),
+        filter: {
+          owner: address.toLocaleLowerCase(),
+        },
+      });
 
-      events.push(...fetchedEvents as EventLog[])
+      events.push(...(fetchedEvents as EventLog[]));
 
       // Looping over the events as the event parameter `cid` entry is an index parameter not the
       // actual CID value submitted to the store call
@@ -120,11 +116,7 @@ export class IpfsRegistry extends Web3PluginBase {
           continue;
         }
         const transactionHash = event.transactionHash;
-        const transaction = await eth.getTransaction(
-          this,
-          transactionHash,
-          DEFAULT_RETURN_FORMAT
-        );
+        const transaction = await eth.getTransaction(this, transactionHash, DEFAULT_RETURN_FORMAT);
         if (!transaction) {
           continue;
         }
@@ -138,7 +130,7 @@ export class IpfsRegistry extends Web3PluginBase {
       }
     }
     // Log all the CIDStored events
-    console.log("CIDStored events",events);
+    console.log("CIDStored events", events);
 
     return cids;
   }
