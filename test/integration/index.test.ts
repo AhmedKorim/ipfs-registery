@@ -124,7 +124,7 @@ describe("IpfsRegistry Tests", () => {
       const maybeSentCid = cids.findIndex((cid) => cid === registryResponse.uploadedCID);
 
       expect(maybeSentCid).toBeGreaterThan(-1);
-    }, 120000);
+    }, 900000);
 
     it("should fetch CIDs from sepolia testnet", async () => {
       const cids = await web3Context.ipfsRegistry.getCIDsOfAddress("0xe213213cd90f95d3251bebe5a10a3fc484d207cd");
