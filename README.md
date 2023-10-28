@@ -10,7 +10,7 @@ import { createHelia } from "helia";
 async function main(){
   // create a web3 context
   const web3Context = new core.Web3Context("http://127.0.0.1:7545");
-  // Creata helia node for IPFS interaction 
+  // Create helia node for IPFS interaction 
   const helia = await createHelia();
   
   const config: IpfsRegistryConfig = {
@@ -51,12 +51,12 @@ async function main(){
   ```.env
   ACCOUNT_PRIVATE_KEY=310066aaedd.................................f0a13f
   ```
-- E2E tests on Chrome using cypress ( Note those tests only working on branch e2e-test)
+- E2E tests on Chrome using cypress ( Note those tests only work on branch e2e-test)
   - Similarly, add a `.env` contains the private key
   - run `yarn test:e2e:chrome`
 
 ### Known issues
-- IPFS packages `helia`, and `js Ipfs`use ESM, this fine for the package to build but tests using cypress aren't working (please check the e2e-test branch)
+- IPFS packages `helia`, and `js Ipfs`use ESM, this is fine for the package to build but tests using cypress isn't working (please check the e2e-test branch)
 - On Master both integration and e2e tests are working as the method for IPFS upload is just a placeholder
 
 ### Resources
