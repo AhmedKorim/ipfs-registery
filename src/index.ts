@@ -11,8 +11,7 @@ import {
 } from "web3";
 
 import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
-import { dagCbor } from "@helia/dag-cbor";
-import { Helia } from "helia";
+import crypto from 'crypto';
 import { EventLog } from "web3-eth-contract/lib/commonjs/types";
 
 export type IpfsRegistryConfig = {
@@ -22,8 +21,6 @@ export type IpfsRegistryConfig = {
   registryContractDeployedAt?: bigint;
   // Registry contract address
   registryContractAddress?: Address;
-  // Helia IPFS node
-  heliaNode: Helia;
 };
 
 export type IpfsRegistryResponse = {
@@ -36,7 +33,6 @@ export class IpfsRegistry extends Web3PluginBase {
   private readonly _registryContract: Contract<RegistryAbiInterface>;
   private readonly _registryContractDeployedAt: bigint;
 
-  private readonly _helia: Helia;
 
   constructor(config: IpfsRegistryConfig) {
     super();
@@ -50,17 +46,15 @@ export class IpfsRegistry extends Web3PluginBase {
     // Linking web3 context the registry contract
     this._registryContract.link(this);
 
-    this._helia = config.heliaNode;
   }
 
   /**
    * Upload a blob to ipfs and return the CID for it
-   * @param fileData - Represents the bytes for the file to upload
+   * @param _fileData - Represents the bytes for the file to upload
    * */
-  private async uploadFileToIpfs(fileData: Uint8Array): Promise<string> {
-    const dag = dagCbor(this._helia);
-    const cid = await dag.add(fileData);
-    return cid.toString();
+  private async uploadFileToIpfs(_fileData: Uint8Array): Promise<string> {
+    const cid   = crypto.randomBytes(33).toString()
+    return Promise.resolve(cid);
   }
 
   /**

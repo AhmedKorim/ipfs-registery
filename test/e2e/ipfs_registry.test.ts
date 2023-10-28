@@ -3,29 +3,24 @@
 import Web3, { Web3Context } from "web3";
 import { IpfsRegistry, IpfsRegistryConfig } from "../../src";
 import { Web3Account } from "web3-eth-accounts";
-import { createHelia, Helia } from "helia";
 describe("IpfsRegistry Tests", () => {
   it("should register IpfsRegistry plugin on Web3Context instance", async () => {
-    const helia =await createHelia()
     const web3Context = new Web3Context("https://rpc.notadegen.com/https://api.zan.top/node/v1/eth/sepolia/public");
     web3Context.registerPlugin(
       new IpfsRegistry({
         registryContractAddress: "0xa683bf985bc560c5dc99e8f33f3340d1e53736eb",
         registryContractDeployedAt: BigInt(4546394),
-        heliaNode:helia
       }),
     );
     expect(web3Context.ipfsRegistry).toBeDefined();
 
-    await helia.stop()
   });
 
   describe("IpfsRegistryPlugin method tests", () => {
     let web3Context: Web3;
     let account: Web3Account;
-    let helia:Helia;
+
     beforeAll(async () => {
-       helia = await createHelia()
 
       web3Context = new Web3("https://ethereum-sepolia.blockpi.network/v1/rpc/public");
       // @ts-ignore
@@ -35,15 +30,12 @@ describe("IpfsRegistry Tests", () => {
       const config: IpfsRegistryConfig = {
         registryContractDeployedAt: BigInt(4562201),
         registryContractAddress: "0xA683BF985BC560c5dc99e8F33f3340d1e53736EB",
-        heliaNode:helia
       };
 
       web3Context.registerPlugin(new IpfsRegistry(config));
     });
 
-    afterAll(async () =>{
-      await helia.stop();
-    })
+
     it("should upload file data to ipfs and query the contract for cids of this user", async () => {
       const fileData = Uint8Array.from([1, 1, 1, 1]);
       const registryUser = account.address;
