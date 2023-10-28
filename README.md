@@ -1,11 +1,6 @@
-# Web3.js IPFS registry Plugin
-Upload data on IPFS and register the CID on smart contract, then submitted CIDs by an addess can be fetched
+# Web3.js IPFS Registry Plugin
+Upload data on IPFS and register the CID on smart contract, then submitted CIDs by an address can be fetched
 from events
-
-
-
-
-
 
 ### Usage
 ```typescript
@@ -47,36 +42,29 @@ async function main(){
 }
 
 ```
+
 ### Testing
 - Integration tests (Node)
-  - Added a `.env` file with a private key that has enough eth balance on Sepolia
-  - Tests are running both on local ganache , and on the Sepolia testnet
+  - Added a `.env` file with a private key that has enough ETH balance on Sepolia
+  - Tests are running both on the local ganache and on the Sepolia testnet
   - Run tests `yarn test`
   ```.env
   ACCOUNT_PRIVATE_KEY=310066aaedd.................................f0a13f
   ```
-- E2E tests on chrome using cypress ( Note those test only working on branch e2e-test)
-  - Similarly add a `.env` contains the private key
+- E2E tests on Chrome using cypress ( Note those tests only working on branch e2e-test)
+  - Similarly, add a `.env` contains the private key
   - run `yarn test:e2e:chrome`
 
 ### Known issues
-- IPFS packages `helia`, and `js Ipfs`use esm, this fine for the package to build but tests using cypress aren't working (please check the e2e-test branch)
+- IPFS packages `helia`, and `js Ipfs`use ESM, this fine for the package to build but tests using cypress aren't working (please check the e2e-test branch)
 - On Master both integration and e2e tests are working as the method for IPFS upload is just a placeholder
-
 
 ### Resources
 - Eth Faucet: [sepoliafaucet](https://sepoliafaucet.com/)
 - Web3.js plugin template: [github repo](https://github.com/web3/web3.js-plugin-template)
-- The idea of using cypress with jest for running tests on the browser environment [web3.js chain link plugin](https://github.com/ChainSafe/web3.js-plugin-chainlink)
+- The idea of using cypress with Jest for running tests on the browser environment [web3.js chain link plugin](https://github.com/ChainSafe/web3.js-plugin-chainlink)
 
 
-Contributing
-------------
-
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
 
 License
 -------
