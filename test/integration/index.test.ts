@@ -93,7 +93,8 @@ describe("IpfsRegistry Tests", () => {
 
     beforeAll(async () => {
       helia = await createHelia();
-      web3Context = new Web3("https://sepolia.infura.io/v3/62a6727b83c34df2b4d203d61fd1be22");
+      const rpc = process.env.SEPOLIA_RPC!;
+      web3Context = new Web3(rpc);
       const privateKey = "0x" + process.env.ACCOUNT_PRIVATE_KEY!;
       account = web3Context.eth.accounts.privateKeyToAccount(privateKey);
       web3Context.eth.accounts.wallet.add(account);
@@ -115,8 +116,8 @@ describe("IpfsRegistry Tests", () => {
       const registryUser = account.address;
       const registryResponse = await web3Context.ipfsRegistry.uploadAndRegister(fileData, {
         from: registryUser,
-        gas: "100000000",
-        gasPrice: "100000000000",
+        gas: "1000000",
+        gasPrice: "10000000000",
       });
 
       // ensure the CID is inserted

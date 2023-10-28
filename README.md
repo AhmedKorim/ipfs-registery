@@ -45,13 +45,15 @@ async function main() {
 ## Testing
 
 - Integration tests (Node):
-  - To run the tests, add a `.env` file with a private key that has sufficient ETH balance on Sepolia.
+  - To run the tests, add a `.env` file with a private key that has sufficient ETH balance on Sepolia and a working rpc endpoint.
   - The tests run on both the local Ganache network and the Sepolia testnet.
   - Run tests using `yarn test`.
 
 Example `.env` file:
 ```
 ACCOUNT_PRIVATE_KEY=310066aaedd.................................f0a13f
+SEPOLIA_RPC=https://sepolia.infura.io/v3/x7s
+
 ```
 
 - End-to-End (E2E) tests on Chrome using Cypress (Note: these tests only work on the `e2e-test` branch):
