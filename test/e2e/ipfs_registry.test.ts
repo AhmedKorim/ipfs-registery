@@ -46,7 +46,7 @@ describe("IpfsRegistry Tests", () => {
     afterAll(async () => {
       await helia.stop();
     });
-    it("should upload file data to ipfs and query the contract for cids of this user", async () => {
+    it("should upload file data to ipfs and query the contract for CIDs of this user", async () => {
       const fileData = Uint8Array.from([1, 1, 1, 1]);
       const registryUser = account.address;
 

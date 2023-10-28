@@ -19,7 +19,7 @@ describe("IpfsRegistry Tests", () => {
     await helia.stop();
   });
 
-  describe("IpfsRegistry methods tests with local testnet", () => {
+  describe("IpfsRegistryPlugin methods tests with local testnet", () => {
     let web3Context: Web3;
     let ganacheProvider: EthereumProvider;
     let helia: Helia;
@@ -54,7 +54,7 @@ describe("IpfsRegistry Tests", () => {
       await helia.stop();
     });
 
-    it("should upload to ipfs and update the cid", async () => {
+    it("should upload to ipfs and update the CID", async () => {
       const fileData = Uint8Array.from([1, 1, 1, 1]);
 
       const accounts = await web3Context.eth.getAccounts();
@@ -78,7 +78,7 @@ describe("IpfsRegistry Tests", () => {
       expect(cids.length).toBeDefined();
     });
 
-    it("should Fetch cids should fail with invalid address", async () => {
+    it("should Fetch CIDs should fail with invalid address", async () => {
       const getCids = (): Promise<string[]> => {
         return web3Context.ipfsRegistry.getCIDsOfAddress("0x302932C3b8ee6f88cfd35b867C3d6AfCada5d548");
       };
@@ -110,7 +110,7 @@ describe("IpfsRegistry Tests", () => {
       await helia.stop();
     });
 
-    it("should upload file data to ipfs and query the contract for cids of this user", async () => {
+    it("should upload file data to ipfs and query the contract for CIDs of this user", async () => {
       const fileData = Uint8Array.from([1, 1, 1, 1]);
       const registryUser = account.address;
       const registryResponse = await web3Context.ipfsRegistry.uploadAndRegister(fileData, {

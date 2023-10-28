@@ -101,16 +101,18 @@ export class IpfsRegistry extends Web3PluginBase {
     const lastBlockNumber = await eth.getBlockNumber(this, DEFAULT_RETURN_FORMAT);
 
     for (
-      let currentBlock = this._registryContractDeployedAt;
-      currentBlock <= lastBlockNumber;
+      let i = BigInt(0);
+      i <= lastBlockNumber;
       // 1024 as this is maximum entries per query
-      currentBlock += BigInt(1024)
+      i += BigInt(1024)
     ) {
+      const fromBlock = this._registryContractDeployedAt + i;
+      const toBlock = fromBlock + BigInt(1024);
       const fetchedEvents = await this._registryContract.getPastEvents("CIDStored", {
-        fromBlock: currentBlock,
-        toBlock: currentBlock + BigInt(1024),
+        fromBlock,
+        toBlock,
         filter: {
-          owner: address.toLocaleLowerCase(),
+          owner: address,
         },
       });
 
@@ -136,7 +138,7 @@ export class IpfsRegistry extends Web3PluginBase {
         cids.push(cid);
       }
     }
-    // Log all the CIDStored events
+    // Prints all CIDStored events from contract to the console
     console.log("CIDStored events", events);
 
     return cids;
