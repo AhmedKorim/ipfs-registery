@@ -14,7 +14,7 @@
 require('dotenv').config()
 
 const webpackPreprocessor = require('@cypress/webpack-preprocessor');
-const webpackOptions = require('../webpack.config.cjs');
+const webpackOptions = require('../webpack.config.js');
 
 /**
  * @type {Cypress.PluginConfig}

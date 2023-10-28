@@ -13,6 +13,7 @@ import {
 import { DEPLOYED_AT, registryAbi, RegistryAbiInterface } from "./registry-abi";
 import { dagCbor } from "@helia/dag-cbor";
 import { Helia } from "helia";
+import { EventLog } from "web3-eth-contract/lib/commonjs/types";
 
 export type IpfsRegistryConfig = {
   // The abi for the registry contract
@@ -56,7 +57,7 @@ export class IpfsRegistry extends Web3PluginBase {
    * Upload a blob to ipfs and return the CID for it
    * @param fileData - Represents the bytes for the file to upload
    * */
-  public async uploadFileToIpfs(fileData: Uint8Array): Promise<string> {
+  private async uploadFileToIpfs(fileData: Uint8Array): Promise<string> {
     const dag = dagCbor(this._helia);
     const cid = await dag.add(fileData);
     return cid.toString();
@@ -67,7 +68,8 @@ export class IpfsRegistry extends Web3PluginBase {
    * @param fileData - Represents the bytes for the file to upload
    * @param txOptions - Payable options that's used for configuring the transaction
    * */
-  public async registerCid(fileCid: string, txOptions: PayableCallOptions): Promise<IpfsRegistryResponse> {
+  public async uploadAndRegister(fileData: Uint8Array, txOptions: PayableCallOptions): Promise<IpfsRegistryResponse> {
+    const fileCid = await this.uploadFileToIpfs(fileData);
     const txReceipt: TransactionReceipt = await this._registryContract.methods.store(fileCid).send(txOptions);
     return {
       transactionHash: txReceipt.transactionHash.toString(),
@@ -93,6 +95,7 @@ export class IpfsRegistry extends Web3PluginBase {
     }
     // The full list of cids stored in the contract
     const cids: string[] = [];
+    const events : EventLog[] = []
 
     // get the latest block from the chain
     const lastBlockNumber = await eth.getBlockNumber(this, DEFAULT_RETURN_FORMAT);
@@ -113,9 +116,11 @@ export class IpfsRegistry extends Web3PluginBase {
           },
         }
       );
+
+      events.push(...fetchedEvents as EventLog[])
+
       // Looping over the events as the event parameter `cid` entry is an index parameter not the
       // actual CID value submitted to the store call
-
       for (const event of fetchedEvents) {
         if (typeof event === "string" || event.transactionHash === undefined) {
           continue;
@@ -138,6 +143,9 @@ export class IpfsRegistry extends Web3PluginBase {
         cids.push(cid);
       }
     }
+    // Log all the CIDStored events
+    console.log("CIDStored events",events);
+
     return cids;
   }
 }
